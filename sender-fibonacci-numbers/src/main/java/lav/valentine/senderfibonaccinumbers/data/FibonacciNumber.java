@@ -1,20 +1,18 @@
 package lav.valentine.senderfibonaccinumbers.data;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @NoArgsConstructor
 public class FibonacciNumber {
-    private Integer currentFibonacciNumber = 0;
+    private Long currentFibonacciNumber = 0L;
     private Integer indexOfCurrentFibonacciNumber = 0;
 
-    private Integer nextFibonacciNumber = 1;
+    private Long nextFibonacciNumber = 1L;
 
     public FibonacciNumber nextFibonacciNumber() {
-        Integer temp = currentFibonacciNumber;
+        Long temp = currentFibonacciNumber;
         currentFibonacciNumber = nextFibonacciNumber;
         nextFibonacciNumber = temp + currentFibonacciNumber;
         indexOfCurrentFibonacciNumber++;

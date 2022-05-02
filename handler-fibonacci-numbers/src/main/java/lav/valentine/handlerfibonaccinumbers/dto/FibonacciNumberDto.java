@@ -1,4 +1,4 @@
-package lav.valentine.senderfibonaccinumbers.dto;
+package lav.valentine.handlerfibonaccinumbers.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

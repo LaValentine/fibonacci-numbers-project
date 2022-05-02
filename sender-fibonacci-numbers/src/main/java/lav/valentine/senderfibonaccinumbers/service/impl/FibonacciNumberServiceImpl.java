@@ -16,18 +16,15 @@ public class FibonacciNumberServiceImpl implements FibonacciNumberService {
         return CURRENT_FIBONACCI_NUMBER
                 .zipWith(AMOUNT_FIBONACCI_NUMBER)
                 .flatMap(t2 -> {
-                    if(t2.getT1().getIndexOfCurrentFibonacciNumber() < t2.getT2()) {
-                        t2.getT1().nextFibonacciNumber();
+                    if(t2.getT2() <= t2.getT1().getIndexOfCurrentFibonacciNumber()) {
+                        CURRENT_FIBONACCI_NUMBER = Mono.just(new FibonacciNumber().nextFibonacciNumber());
                     }
-                    else {
-                        CURRENT_FIBONACCI_NUMBER = Mono.just(new FibonacciNumber());
-                    }
+                    t2.getT1().nextFibonacciNumber();
                     return CURRENT_FIBONACCI_NUMBER;
                 })
                 .map(fibonacciNumber -> FibonacciNumberDto.builder()
                         .indexOfFibonacciNumber(fibonacciNumber.getIndexOfCurrentFibonacciNumber())
                         .fibonacciNumber(fibonacciNumber.getCurrentFibonacciNumber())
                         .build());
-
     }
 }

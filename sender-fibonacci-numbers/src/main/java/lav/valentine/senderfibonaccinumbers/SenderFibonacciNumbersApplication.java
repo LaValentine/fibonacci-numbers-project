@@ -9,5 +9,4 @@ public class SenderFibonacciNumbersApplication {
     public static void main(String[] args) {
         SpringApplication.run(SenderFibonacciNumbersApplication.class, args);
     }
-
 }
