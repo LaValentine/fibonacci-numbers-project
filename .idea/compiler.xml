@@ -7,16 +7,22 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="fibonacci-numbers-project" />
-        <module name="handler-fibonacci-numbars" />
+        <module name="handler-fibonacci-numbers" />
+        <module name="models" />
         <module name="sender-fibonacci-numbers" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="handler-fibonacci-numbars" target="17" />
+      <module name="sendler-fibonacci-numbers" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="handler-fibonacci-numbars" options="-parameters" />
+      <module name="handler-fibonacci-numbers" options="-parameters" />
       <module name="sender-fibonacci-numbers" options="-parameters" />
+      <module name="sendler-fibonacci-numbers" options="-parameters" />
     </option>
   </component>
 </project>
