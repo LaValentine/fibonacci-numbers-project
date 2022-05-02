@@ -8,12 +8,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="handler-fibonacci-numbers" />
-        <module name="models" />
         <module name="sender-fibonacci-numbers" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="handler-fibonacci-numbars" target="17" />
+      <module name="models" target="17" />
       <module name="sendler-fibonacci-numbers" target="17" />
     </bytecodeTargetLevel>
   </component>

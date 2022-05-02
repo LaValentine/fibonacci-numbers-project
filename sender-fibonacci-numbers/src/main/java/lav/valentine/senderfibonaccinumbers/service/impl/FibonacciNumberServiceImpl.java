@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class FibonacciNumberServiceImpl implements FibonacciNumberService {
+    //@Value("${amount-fibonacci-numbers}")
     private static final Mono<Integer> AMOUNT_FIBONACCI_NUMBER = Mono.just(50);
     private static Mono<FibonacciNumber> CURRENT_FIBONACCI_NUMBER = Mono.just(new FibonacciNumber());
 
