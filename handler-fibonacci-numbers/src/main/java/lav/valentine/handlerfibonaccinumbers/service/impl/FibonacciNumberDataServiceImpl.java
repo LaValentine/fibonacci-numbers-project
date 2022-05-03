@@ -28,13 +28,10 @@ public class FibonacciNumberDataServiceImpl implements FibonacciNumberDataServic
                 .map(FibonacciNumberDto::getFibonacciNumber)
                 .collectList()
                 .map(t -> t.stream().mapToLong(a -> a).sum())
-                .map(sum -> {
-                    System.out.println(sum);
-                    return FibonacciNumbersSumDto.builder()
+                .map(sum -> FibonacciNumbersSumDto.builder()
                             .fibonacciNumbersSum(sum)
                             .maxValueOfFibonacciNumber(maxValue)
                             .minValueOfFibonacciNumber(minValue)
-                            .build();
-                });
+                            .build());
     }
 }

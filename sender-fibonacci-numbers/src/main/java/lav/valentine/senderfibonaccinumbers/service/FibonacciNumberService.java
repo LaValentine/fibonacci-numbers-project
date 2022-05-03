@@ -6,4 +6,6 @@ import reactor.core.publisher.Mono;
 public interface FibonacciNumberService {
 
     Mono<FibonacciNumberDto> nextFibonacciNumber();
+
+    Mono<Integer> getAmountFibonacciNumbers();
 }
