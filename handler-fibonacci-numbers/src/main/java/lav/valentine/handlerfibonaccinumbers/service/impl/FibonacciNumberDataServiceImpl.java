@@ -5,12 +5,14 @@ import lav.valentine.handlerfibonaccinumbers.dto.FibonacciNumbersSumDto;
 import lav.valentine.handlerfibonaccinumbers.exception.ext.BadParametersException;
 import lav.valentine.handlerfibonaccinumbers.exception.ext.ServerException;
 import lav.valentine.handlerfibonaccinumbers.service.FibonacciNumberDataService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Service
 public class FibonacciNumberDataServiceImpl implements FibonacciNumberDataService {
 
@@ -50,7 +52,8 @@ public class FibonacciNumberDataServiceImpl implements FibonacciNumberDataServic
                     .route("get-fibonacci-numbers-from-stream")
                     .retrieveFlux(FibonacciNumberDto.class)
                     .onErrorResume(err -> {
-                        throw new ServerException(EXCEPTION_SERVER);
+                        log.warn(err.toString());
+                        return Flux.error(new ServerException(EXCEPTION_SERVER));
                     });
     }
 }
