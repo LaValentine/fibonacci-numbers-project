@@ -1,0 +1,4 @@
+exception:
+  user:
+    min-bigger-max: 'min bigger max'
+  server: 'server exception'

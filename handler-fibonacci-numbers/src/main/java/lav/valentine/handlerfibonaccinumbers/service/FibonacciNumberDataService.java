@@ -7,11 +7,7 @@ import reactor.core.publisher.Mono;
 
 public interface FibonacciNumberDataService {
 
-    Flux<FibonacciNumberDto> fibonacciNumbersBetweenFilter(Flux<FibonacciNumberDto> fibonacciNumbers,
-                                                           Long minValue,
-                                                           Long maxValue);
+    Mono<FibonacciNumbersSumDto> fibonacciNumbersBetweenSum(Long minValue, Long maxValue);
 
-    Mono<FibonacciNumbersSumDto> fibonacciNumbersBetweenSum(Flux<FibonacciNumberDto> fibonacciNumbers,
-                                                            Long minValue,
-                                                            Long maxValue);
+    Flux<FibonacciNumberDto> getFibonacciNumbers();
 }

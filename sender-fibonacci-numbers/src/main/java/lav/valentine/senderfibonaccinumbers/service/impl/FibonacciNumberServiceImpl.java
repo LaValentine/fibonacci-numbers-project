@@ -1,41 +1,45 @@
 package lav.valentine.senderfibonaccinumbers.service.impl;
 
-import lav.valentine.senderfibonaccinumbers.data.FibonacciNumber;
 import lav.valentine.senderfibonaccinumbers.dto.FibonacciNumberDto;
 import lav.valentine.senderfibonaccinumbers.service.FibonacciNumberService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
+
+import java.time.Duration;
 
 @Service
 public class FibonacciNumberServiceImpl implements FibonacciNumberService {
-    private Mono<FibonacciNumber> currentFibonacciNumbers;
-    private final Mono<Integer> amountFibonacciNumber;
 
-    public FibonacciNumberServiceImpl(@Value("${amount-fibonacci-numbers}") Integer amountFibonacciNumber) {
-        this.amountFibonacciNumber = Mono.just(amountFibonacciNumber);
-        this.currentFibonacciNumbers = Mono.just(new FibonacciNumber());
+    private final Integer amountFibonacciNumber;
+    private final Integer intervalOfSending;
+
+    public FibonacciNumberServiceImpl(@Value("${amount-fibonacci-numbers}") Integer amountFibonacciNumber,
+                                      @Value("${interval-of-sending}") Integer intervalOfSending) {
+        this.amountFibonacciNumber = amountFibonacciNumber;
+        this.intervalOfSending = intervalOfSending;
     }
 
-    @Override
-    public Mono<FibonacciNumberDto> nextFibonacciNumber() {
-        return currentFibonacciNumbers
-                .zipWith(amountFibonacciNumber)
-                .flatMap(t2 -> {
-                    if(t2.getT2() <= t2.getT1().getIndexOfCurrentFibonacciNumber()) {
-                        currentFibonacciNumbers = Mono.just(new FibonacciNumber().nextFibonacciNumber());
-                    }
-                    t2.getT1().nextFibonacciNumber();
-                    return currentFibonacciNumbers;
-                })
-                .map(fibonacciNumber -> FibonacciNumberDto.builder()
-                        .indexOfFibonacciNumber(fibonacciNumber.getIndexOfCurrentFibonacciNumber())
-                        .fibonacciNumber(fibonacciNumber.getCurrentFibonacciNumber())
-                        .build());
+    private long previousNum = 0;
+
+    private Flux<FibonacciNumberDto> generateFibonacciNumbers() {
+        return Flux.generate(
+                () -> new FibonacciNumberDto(1L, 1),
+                (state, sink) -> {
+                    sink.next(state);
+                    long temp = state.getFibonacciNumber();
+                    FibonacciNumberDto fibonacciNumberDto = new FibonacciNumberDto(
+                            state.getFibonacciNumber() + previousNum,
+                            state.getIndexOfFibonacciNumber() + 1);
+                    previousNum = temp;
+                    return fibonacciNumberDto;
+                });
     }
 
-    @Override
-    public Mono<Integer> getAmountFibonacciNumbers() {
-        return amountFibonacciNumber;
+    public Flux<FibonacciNumberDto> fibonacciNumbers() {
+        previousNum = 0;
+        return generateFibonacciNumbers()
+                .take(amountFibonacciNumber)
+                .delayElements(Duration.ofMillis(intervalOfSending));
     }
 }
