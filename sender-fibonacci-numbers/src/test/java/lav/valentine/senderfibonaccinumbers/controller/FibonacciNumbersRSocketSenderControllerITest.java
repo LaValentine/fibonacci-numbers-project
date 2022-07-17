@@ -10,15 +10,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.util.List;
 
-@SpringBootTest()
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ActiveProfiles(profiles = "local")
+@SpringBootTest
+@DirtiesContext
 class FibonacciNumbersRSocketSenderControllerITest {
 
     @MockBean

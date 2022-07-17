@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 
 @ControllerAdvice
 public class ApiExceptionHandler {
-    @ExceptionHandler(value = ApiException.class)
+    @ExceptionHandler(ApiException.class)
     public Mono<ResponseEntity<String>> apiExceptionHandler(ApiException ex) {
         return Mono.just(ResponseEntity
                 .status(ex.getHttpStatus())
