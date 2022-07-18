@@ -7,7 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -16,6 +19,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(controllers = FibonacciNumbersRSocketHandlerController.class)
+@Import(GlobalErrorAttributes.class)
+@DirtiesContext
 class ApiExceptionHandlerTest {
 
     @MockBean
@@ -35,6 +40,16 @@ class ApiExceptionHandlerTest {
                 .exchange()
                 .expectStatus().is5xxServerError()
                 .expectBody(String.class).isEqualTo(ERROR_MESSAGE);
+    }
+
+    @Test
+    void apiExceptionHandlerRuntime() {
+        when(controller.getFibonacciNumbers())
+                .thenThrow(new RuntimeException());
+
+        webClient.get().uri("/fibonacci-numbers/get-fibonacci-numbers-from-stream")
+                .exchange()
+                .expectStatus().is5xxServerError();
     }
     @Test
     void apiExceptionHandlerBadParametersException() {

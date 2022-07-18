@@ -37,7 +37,7 @@ public class FibonacciNumberDataServiceImpl implements FibonacciNumberDataServic
     public Mono<FibonacciNumbersSumDto> fibonacciNumbersBetweenSum(Long minValue, Long maxValue) {
         if (minValue > maxValue) {
             log.info(EXCEPTION_MIN_BIGGER_MAX);
-            throw new BadParametersException(EXCEPTION_MIN_BIGGER_MAX);
+            return Mono.error(new BadParametersException(EXCEPTION_MIN_BIGGER_MAX));
         }
         return fibonacciNumbersBetweenFilter(
                 getFibonacciNumbers().map(FibonacciNumberDto::getFibonacciNumber), minValue, maxValue)
@@ -52,7 +52,7 @@ public class FibonacciNumberDataServiceImpl implements FibonacciNumberDataServic
     @Override
     public Flux<FibonacciNumberDto> getFibonacciNumbers() {
         return rSocketRequester
-                    .route("get-fibonacci-numbers-from-stream")
+                    .route("get-fibonacci-numbers")
                     .retrieveFlux(FibonacciNumberDto.class)
                     .onErrorResume(err -> {
                         log.error("{}, {}", EXCEPTION_SERVER, err.getMessage());

@@ -14,7 +14,7 @@ public class FibonacciNumbersRSocketSenderController {
         this.fibonacciNumberService = fibonacciNumberService;
     }
 
-    @MessageMapping("get-fibonacci-numbers-from-stream")
+    @MessageMapping("get-fibonacci-numbers")
     public Flux<FibonacciNumberDto> sendFibonacciNumbersFromStream() {
         return fibonacciNumberService.fibonacciNumbers();
     }
