@@ -26,7 +26,7 @@ class FibonacciNumbersRSocketSenderControllerITest {
 
     @BeforeEach
     public void setupOnce(@Autowired RSocketRequester.Builder builder,
-                                 @LocalRSocketServerPort Integer port) {
+                          @LocalRSocketServerPort Integer port) {
         rSocketRequester = builder.tcp("localhost", port);
     }
 
@@ -36,7 +36,7 @@ class FibonacciNumbersRSocketSenderControllerITest {
     }
 
     @Test
-    void sendFibonacciNumbersFromStream() {
+    void sendFibonacciNumbers() {
         List<FibonacciNumberDto> fibonacciNumbers = List.of(
                 new FibonacciNumberDto(1L, 1),
                 new FibonacciNumberDto(1L, 2),
@@ -48,7 +48,7 @@ class FibonacciNumbersRSocketSenderControllerITest {
         Mockito.when(fibonacciNumberService.fibonacciNumbers()).thenReturn(fibonacciNumbersFlux);
 
         Flux<FibonacciNumberDto> f = rSocketRequester
-                .route("get-fibonacci-numbers-from-stream")
+                .route("get-fibonacci-numbers")
                 .retrieveFlux(FibonacciNumberDto.class);
 
         StepVerifier.FirstStep<FibonacciNumberDto> firstStep = StepVerifier.create(f);

@@ -6,7 +6,6 @@ import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.stereotype.Component;
@@ -24,9 +23,10 @@ import java.util.Map;
 @Order(-2)
 public class GlobalErrorWebExceptionHandler extends AbstractErrorWebExceptionHandler {
 
-    public GlobalErrorWebExceptionHandler(GlobalErrorAttributes g, ApplicationContext applicationContext,
+    public GlobalErrorWebExceptionHandler(GlobalErrorAttributes globalErrorAttributes,
+                                          ApplicationContext applicationContext,
                                           ServerCodecConfigurer serverCodecConfigurer) {
-        super(g, new WebProperties.Resources(), applicationContext);
+        super(globalErrorAttributes, new WebProperties.Resources(), applicationContext);
         super.setMessageWriters(serverCodecConfigurer.getWriters());
         super.setMessageReaders(serverCodecConfigurer.getReaders());
     }
@@ -40,9 +40,9 @@ public class GlobalErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
 
         final Map<String, Object> errorPropertiesMap = getErrorAttributes(request, ErrorAttributeOptions.defaults());
 
-        return ServerResponse.status((Integer) errorPropertiesMap.get("status"))
+        return ServerResponse
+                .status((Integer) errorPropertiesMap.get(ErrorProperty.STATUS.getProperty()))
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(errorPropertiesMap.get("message")));
+                .body(BodyInserters.fromValue(errorPropertiesMap.get(ErrorProperty.MESSAGE.getProperty())));
     }
-
 }

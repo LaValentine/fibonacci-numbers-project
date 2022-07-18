@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 @WebFluxTest(controllers = FibonacciNumbersRSocketHandlerController.class)
 @Import(GlobalErrorAttributes.class)
 @DirtiesContext
+@PropertySource("classpath:application-test.yaml")
 class ApiExceptionHandlerTest {
 
     @MockBean
@@ -36,7 +37,7 @@ class ApiExceptionHandlerTest {
         when(controller.getFibonacciNumbers())
                 .thenThrow(new ServerException(ERROR_MESSAGE));
 
-        webClient.get().uri("/fibonacci-numbers/get-fibonacci-numbers-from-stream")
+        webClient.get().uri("/fibonacci-numbers/get-fibonacci-numbers")
                 .exchange()
                 .expectStatus().is5xxServerError()
                 .expectBody(String.class).isEqualTo(ERROR_MESSAGE);
@@ -47,7 +48,7 @@ class ApiExceptionHandlerTest {
         when(controller.getFibonacciNumbers())
                 .thenThrow(new RuntimeException());
 
-        webClient.get().uri("/fibonacci-numbers/get-fibonacci-numbers-from-stream")
+        webClient.get().uri("/fibonacci-numbers/get-fibonacci-numbers")
                 .exchange()
                 .expectStatus().is5xxServerError();
     }
@@ -60,9 +61,9 @@ class ApiExceptionHandlerTest {
                 .thenThrow(new BadParametersException(ERROR_MESSAGE));
 
         webClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/fibonacci-numbers/get-sum-of-some-fibonacci-numbers")
-                        .queryParam("maxValue", maxValue)
-                        .queryParam("minValue", minValue)
+                .uri(uriBuilder -> uriBuilder.path("/fibonacci-numbers/get-fibonacci-numbers-sum")
+                        .queryParam("max-value", maxValue)
+                        .queryParam("min-value", minValue)
                         .build())
                 .exchange()
                 .expectStatus().isBadRequest()

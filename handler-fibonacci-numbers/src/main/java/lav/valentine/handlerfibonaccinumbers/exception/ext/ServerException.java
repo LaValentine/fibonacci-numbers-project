@@ -7,6 +7,6 @@ public class ServerException extends ApiException {
 
     public ServerException(String message) {
         super(message);
-        super.httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        super.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

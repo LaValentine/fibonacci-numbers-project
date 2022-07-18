@@ -44,9 +44,9 @@ class FibonacciNumbersRSocketHandlerControllerTest {
                 .thenReturn(fibonacciNumbersSum);
 
         webClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/fibonacci-numbers/get-sum-of-some-fibonacci-numbers")
-                    .queryParam("maxValue", maxValue)
-                    .queryParam("minValue", minValue)
+                .uri(uriBuilder -> uriBuilder.path("/fibonacci-numbers/get-fibonacci-numbers-sum")
+                    .queryParam("max-value", maxValue)
+                    .queryParam("min-value", minValue)
                     .build())
                 .exchange()
                     .expectStatus()
@@ -69,7 +69,7 @@ class FibonacciNumbersRSocketHandlerControllerTest {
 
         Mockito.when(fibonacciNumberDataService.getFibonacciNumbers()).thenReturn(fibonacciNumbersFlux);
 
-        webClient.get().uri("/fibonacci-numbers/get-fibonacci-numbers-from-stream")
+        webClient.get().uri("/fibonacci-numbers/get-fibonacci-numbers")
                 .exchange()
                     .expectStatus()
                         .isOk()

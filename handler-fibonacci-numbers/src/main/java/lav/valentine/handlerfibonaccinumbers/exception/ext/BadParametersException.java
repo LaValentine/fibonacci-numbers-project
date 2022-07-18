@@ -7,6 +7,6 @@ public class BadParametersException extends ApiException {
 
     public BadParametersException(String message) {
         super(message);
-        super.httpStatus = HttpStatus.BAD_REQUEST;
+        super.setHttpStatus(HttpStatus.BAD_REQUEST);
     }
 }

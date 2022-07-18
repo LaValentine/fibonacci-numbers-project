@@ -20,15 +20,14 @@ public class FibonacciNumbersRSocketHandlerController {
     }
 
     @Cacheable(value = "fibonacci-numbers-sum")
-    @GetMapping(value = "/get-sum-of-some-fibonacci-numbers")
-    public Mono<FibonacciNumbersSumDto> getFibonacciNumbersSum(
-            @RequestParam Long maxValue,
-            @RequestParam Long minValue) {
+    @GetMapping(value = "/get-fibonacci-numbers-sum")
+    public Mono<FibonacciNumbersSumDto> getFibonacciNumbersSum(@RequestParam("max-value") Long maxValue,
+                                                               @RequestParam("min-value") Long minValue) {
         return fibonacciNumberDataService.fibonacciNumbersBetweenSum(minValue, maxValue).cache();
     }
 
     @Cacheable(value = "fibonacci-numbers")
-    @GetMapping(value = "/get-fibonacci-numbers-from-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/get-fibonacci-numbers", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<FibonacciNumberDto> getFibonacciNumbers() {
         return fibonacciNumberDataService.getFibonacciNumbers().cache();
     }
