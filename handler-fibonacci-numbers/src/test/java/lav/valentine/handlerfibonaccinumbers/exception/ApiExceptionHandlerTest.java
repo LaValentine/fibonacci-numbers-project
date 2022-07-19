@@ -37,7 +37,7 @@ class ApiExceptionHandlerTest {
         when(controller.getFibonacciNumbers())
                 .thenThrow(new ServerException(ERROR_MESSAGE));
 
-        webClient.get().uri("/fibonacci-numbers/get-fibonacci-numbers")
+        webClient.get().uri("/api/fibonacci-numbers")
                 .exchange()
                 .expectStatus().is5xxServerError()
                 .expectBody(String.class).isEqualTo(ERROR_MESSAGE);
@@ -48,7 +48,7 @@ class ApiExceptionHandlerTest {
         when(controller.getFibonacciNumbers())
                 .thenThrow(new RuntimeException());
 
-        webClient.get().uri("/fibonacci-numbers/get-fibonacci-numbers")
+        webClient.get().uri("/api/fibonacci-numbers")
                 .exchange()
                 .expectStatus().is5xxServerError();
     }
@@ -61,7 +61,7 @@ class ApiExceptionHandlerTest {
                 .thenThrow(new BadParametersException(ERROR_MESSAGE));
 
         webClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/fibonacci-numbers/get-fibonacci-numbers-sum")
+                .uri(uriBuilder -> uriBuilder.path("/api/fibonacci-numbers/sum")
                         .queryParam("max-value", maxValue)
                         .queryParam("min-value", minValue)
                         .build())

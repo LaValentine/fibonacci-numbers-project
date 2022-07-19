@@ -12,6 +12,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="fibonacci-numbers-project" target="16" />
       <module name="handler-fibonacci-numbars" target="17" />
       <module name="models" target="17" />
       <module name="sendler-fibonacci-numbers" target="17" />

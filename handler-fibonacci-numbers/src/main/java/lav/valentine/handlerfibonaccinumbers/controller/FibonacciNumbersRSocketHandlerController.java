@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/fibonacci-numbers")
+@RequestMapping("/api/fibonacci-numbers")
 public class FibonacciNumbersRSocketHandlerController {
 
     private final FibonacciNumberDataService fibonacciNumberDataService;
@@ -20,14 +20,14 @@ public class FibonacciNumbersRSocketHandlerController {
     }
 
     @Cacheable(value = "fibonacci-numbers-sum")
-    @GetMapping(value = "/get-fibonacci-numbers-sum")
+    @GetMapping(value = "/sum")
     public Mono<FibonacciNumbersSumDto> getFibonacciNumbersSum(@RequestParam("max-value") Long maxValue,
                                                                @RequestParam("min-value") Long minValue) {
         return fibonacciNumberDataService.fibonacciNumbersBetweenSum(minValue, maxValue).cache();
     }
 
     @Cacheable(value = "fibonacci-numbers")
-    @GetMapping(value = "/get-fibonacci-numbers", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<FibonacciNumberDto> getFibonacciNumbers() {
         return fibonacciNumberDataService.getFibonacciNumbers().cache();
     }
