@@ -28,7 +28,7 @@
   ```
   mvn  -f ./handler-fibonacci-numbers package -DskipTests
   ```
-ШАГ #4
+ШАГ #3
 
   ```
   java -jar ./sender-fibonacci-numbers/target/sender-fibonacci-numbers-0.0.1-SNAPSHOT.jar
