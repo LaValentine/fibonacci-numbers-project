@@ -1,5 +1,6 @@
+# Exception messages
 exception:
   user:
-    min-bigger-max: 'min bigger max'
-  server: 'server exception'
-  unknown: 'unknown exception'
+    min-greater-max: 'The min parameter is greater than the max parameter'
+  rsocket-server: 'RSocket server error'
+  unknown: 'Unknown exception'

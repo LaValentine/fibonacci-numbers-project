@@ -6,11 +6,11 @@ import lav.valentine.handlerfibonaccinumbers.exception.GlobalErrorAttributes;
 import lav.valentine.handlerfibonaccinumbers.service.FibonacciNumberDataService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -19,10 +19,13 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-@ExtendWith(SpringExtension.class)
-@WebFluxTest(controllers = FibonacciNumbersRSocketHandlerController.class)
+import static org.mockito.Mockito.when;
+
 @DirtiesContext
+@ExtendWith(SpringExtension.class)
 @Import(GlobalErrorAttributes.class)
+@PropertySource("classpath:application-test.properties")
+@WebFluxTest(controllers = FibonacciNumbersRSocketHandlerController.class)
 class FibonacciNumbersRSocketHandlerControllerTest {
 
     @MockBean
@@ -40,7 +43,7 @@ class FibonacciNumbersRSocketHandlerControllerTest {
         Mono<FibonacciNumbersSumDto> fibonacciNumbersSum =
                 Mono.just(new FibonacciNumbersSumDto(sum, minValue, maxValue));
 
-        Mockito.when(fibonacciNumberDataService.fibonacciNumbersBetweenSum(minValue, maxValue))
+        when(fibonacciNumberDataService.fibonacciNumbersBetweenSum(minValue, maxValue))
                 .thenReturn(fibonacciNumbersSum);
 
         webClient.get()
@@ -67,17 +70,15 @@ class FibonacciNumbersRSocketHandlerControllerTest {
                 new FibonacciNumberDto(5L, 5));
         Flux<FibonacciNumberDto> fibonacciNumbersFlux = Flux.fromIterable(fibonacciNumbers);
 
-        Mockito.when(fibonacciNumberDataService.getFibonacciNumbers()).thenReturn(fibonacciNumbersFlux);
+        when(fibonacciNumberDataService.getFibonacciNumbers()).thenReturn(fibonacciNumbersFlux);
 
-        webClient.get().uri("/fibonacci-numbers/get-fibonacci-numbers")
+        WebTestClient.ListBodySpec<FibonacciNumberDto> result =
+                webClient.get().uri("/fibonacci-numbers/get-fibonacci-numbers")
                 .exchange()
                     .expectStatus()
                         .isOk()
-                    .expectBodyList(FibonacciNumberDto.class)
-                        .contains(fibonacciNumbers.get(0),
-                                fibonacciNumbers.get(1),
-                                fibonacciNumbers.get(2),
-                                fibonacciNumbers.get(3),
-                                fibonacciNumbers.get(4));
+                    .expectBodyList(FibonacciNumberDto.class);
+
+        fibonacciNumbers.forEach(result::contains);
     }
 }

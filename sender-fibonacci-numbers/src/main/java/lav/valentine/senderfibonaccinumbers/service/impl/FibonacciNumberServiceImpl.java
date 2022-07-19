@@ -18,8 +18,8 @@ public class FibonacciNumberServiceImpl implements FibonacciNumberService {
 
     private long previousNum = 0;
 
-    public FibonacciNumberServiceImpl(@Value("${amount-fibonacci-numbers}") Integer amountFibonacciNumber,
-                                      @Value("${interval-of-sending}") Integer intervalOfSending) {
+    public FibonacciNumberServiceImpl(@Value("${fibonacci-numbers.amount}") Integer amountFibonacciNumber,
+                                      @Value("${fibonacci-numbers.interval-of-sending}") Integer intervalOfSending) {
         this.amountFibonacciNumber = amountFibonacciNumber;
         this.intervalOfSending = intervalOfSending;
     }

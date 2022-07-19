@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -22,6 +23,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @DirtiesContext
 @ExtendWith(SpringExtension.class)
+@PropertySource("classpath:application-test.properties")
 class FibonacciNumberDataServiceImplTest {
 
     @MockBean
@@ -59,7 +61,7 @@ class FibonacciNumberDataServiceImplTest {
     }
 
     @Test
-    void fibonacciNumbersBetweenSumMinBiggerThenMax() {
+    void fibonacciNumbersBetweenSumMinGreaterMax() {
         Long maxValue = 0L;
         Long minValue = 2L;
 

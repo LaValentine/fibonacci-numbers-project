@@ -17,11 +17,11 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
-@WebFluxTest(controllers = FibonacciNumbersRSocketHandlerController.class)
-@Import(GlobalErrorAttributes.class)
 @DirtiesContext
-@PropertySource("classpath:application-test.yaml")
+@ExtendWith(SpringExtension.class)
+@Import(GlobalErrorAttributes.class)
+@PropertySource("classpath:application-test.properties")
+@WebFluxTest(controllers = FibonacciNumbersRSocketHandlerController.class)
 class ApiExceptionHandlerTest {
 
     @MockBean
@@ -33,7 +33,7 @@ class ApiExceptionHandlerTest {
     private final static String ERROR_MESSAGE = "error-message";
 
     @Test
-    void apiExceptionHandler() {
+    void apiExceptionHandlerServerException() {
         when(controller.getFibonacciNumbers())
                 .thenThrow(new ServerException(ERROR_MESSAGE));
 
@@ -44,7 +44,7 @@ class ApiExceptionHandlerTest {
     }
 
     @Test
-    void apiExceptionHandlerRuntime() {
+    void apiExceptionHandlerRuntimeException() {
         when(controller.getFibonacciNumbers())
                 .thenThrow(new RuntimeException());
 

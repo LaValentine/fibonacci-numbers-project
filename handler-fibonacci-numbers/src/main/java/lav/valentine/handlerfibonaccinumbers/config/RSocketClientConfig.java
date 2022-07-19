@@ -11,8 +11,8 @@ public class RSocketClientConfig {
 
     @Bean
     public RSocketRequester rSocketRequester(@Autowired RSocketRequester.Builder builder,
-                                             @Value("${RSocketRequester-tcp-host}") String host,
-                                             @Value("${RSocketRequester-tcp-port}") Integer port) {
+                                             @Value("${rsocket.requester.tcp.host}") String host,
+                                             @Value("${rsocket.requester.tcp.port}") Integer port) {
         return builder.tcp(host, port);
     }
 }

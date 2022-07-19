@@ -17,14 +17,14 @@ import reactor.core.publisher.Mono;
 public class FibonacciNumberDataServiceImpl implements FibonacciNumberDataService {
 
     private final RSocketRequester rSocketRequester;
-    private final String EXCEPTION_MIN_BIGGER_MAX;
+    private final String EXCEPTION_MIN_GREATER_MAX;
     private final String EXCEPTION_SERVER;
 
     public FibonacciNumberDataServiceImpl(RSocketRequester rSocketRequester,
-                                          @Value("${exception.user.min-bigger-max}") String exceptionMinBiggerMax,
-                                          @Value("${exception.server}") String exceptionServer) {
+                                          @Value("${exception.user.min-greater-max}") String exceptionMinGreaterMax,
+                                          @Value("${exception.rsocket-server}") String exceptionServer) {
         this.rSocketRequester = rSocketRequester;
-        this.EXCEPTION_MIN_BIGGER_MAX = exceptionMinBiggerMax;
+        this.EXCEPTION_MIN_GREATER_MAX = exceptionMinGreaterMax;
         this.EXCEPTION_SERVER = exceptionServer;
     }
 
@@ -36,27 +36,24 @@ public class FibonacciNumberDataServiceImpl implements FibonacciNumberDataServic
     @Override
     public Mono<FibonacciNumbersSumDto> fibonacciNumbersBetweenSum(Long minValue, Long maxValue) {
         if (minValue > maxValue) {
-            log.info(EXCEPTION_MIN_BIGGER_MAX);
-            return Mono.error(new BadParametersException(EXCEPTION_MIN_BIGGER_MAX));
+            log.info(EXCEPTION_MIN_GREATER_MAX);
+            return Mono.error(new BadParametersException(EXCEPTION_MIN_GREATER_MAX));
         }
         return fibonacciNumbersBetweenFilter(
                 getFibonacciNumbers().map(FibonacciNumberDto::getFibonacciNumber), minValue, maxValue)
                 .reduce(Long::sum)
-                .map(sum -> FibonacciNumbersSumDto.builder()
-                            .fibonacciNumbersSum(sum)
-                            .maxValueOfFibonacciNumber(maxValue)
-                            .minValueOfFibonacciNumber(minValue)
-                            .build());
+                .map(sum -> new FibonacciNumbersSumDto(sum, minValue, maxValue))
+                .defaultIfEmpty(new FibonacciNumbersSumDto(0L, minValue, maxValue)).log();
     }
 
     @Override
     public Flux<FibonacciNumberDto> getFibonacciNumbers() {
         return rSocketRequester
-                    .route("get-fibonacci-numbers")
-                    .retrieveFlux(FibonacciNumberDto.class)
-                    .onErrorResume(err -> {
-                        log.error("{}, {}", EXCEPTION_SERVER, err.getMessage());
-                        return Flux.error(new ServerException(EXCEPTION_SERVER));
-                    });
+                .route("get-fibonacci-numbers")
+                .retrieveFlux(FibonacciNumberDto.class)
+                .onErrorResume(err -> {
+                    log.error("{}, {}", EXCEPTION_SERVER, err.getMessage());
+                    return Flux.error(new ServerException(EXCEPTION_SERVER));
+                });
     }
 }
