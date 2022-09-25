@@ -1,9 +1,11 @@
 # Описание
-Два микросервиса
+Три микросервиса
 
 Первый микросервис умеет выдавать последовательность первых 50 чисел Фибоначчи (каждые 100мс по одному числу).
 
 Второй микросервис умеет обращаться к первому, выбирать какой-либо диапазон чисел, считать их сумму и кешировать результат в течение 5 секунд (не более 20 запросов)
+
+Третий микросервис собирает логи первых двух
 
 ## Технологии
 * Java 17
@@ -12,54 +14,178 @@
 * Caffeine Cache
 
 ## Запуск приложения
-ШАГ #1
+ШАГ #1 Создание образа с окружением для запуска программы
 
-Установите переменные окружения или же оставьте значения по умолчанию
-  ```
-  SERVER_PORT=8080
-  RSOCKET_SERVER_HOST=localhost
-  RSOCKET_SERVER_PORT=7000
-  ```
-ШАГ #2
+Для запуска приложения необходимо установить maven 3.6.3 и openjdk 17
 
-  ```
-  mvn  -f ./sender-fibonacci-numbers package -DskipTests
-  ```
-  ```
-  mvn  -f ./handler-fibonacci-numbers package -DskipTests
-  ```
-ШАГ #3
+Dockerfile данного образа:
 
-  ```
-  java -jar ./sender-fibonacci-numbers/target/sender-fibonacci-numbers-0.0.1-SNAPSHOT.jar
-  ```
-  ```
-  java -jar ./handler-fibonacci-numbers/target/handler-fibonacci-numbers-0.0.1-SNAPSHOT.jar
-  ```
-## Запуск приложения с использованием Docker
+```
+FROM ubuntu:18.04   # образ будет создан на основе образа ubuntu:18.04
 
-ШАГ #1
+ARG MAVEN_VERSION=3.6.3                                                             # Переменная хранит версию maven
+ARG USER_HOME_DIR="/root"                                                           # Переменная хранит корневую директорию пользователя
+ARG BASE_URL=https://apache.osuosl.org/maven/maven-3/${MAVEN_VERSION}/binaries      # Адрес ссылки, с которй будет скачен maven
 
-  ```
-  docker build -t lavalentine/sender-fibonacci-numbers -f ./sender-fibonacci-numbers .
-  ```
-  ```
-  docker build -t lavalentine/handler-fibonacci-numbers -f ./handler-fibonacci-numbers .
-  ```
-ШАГ #2
+RUN apt-get update \                                    # Перед установкой нужных компонентов необходимо обновить репозитории операционной системы
+    && apt-get install -y curl \                        # Устанавливаем утилиту curl, она необходима для скачивания maven
+    && apt-get install -y openjdk-17-jre-headless       # Устанавливаем Java
 
-  ```
-  docker run --name sender-fibonacci-numbers -p 7000:7000 lavalentine/sender-fibonacci-numbers
-  ```
-  ```
-  docker run --name handler-fibonacci-numbers -p 8080:8080 -e RSOCKET_SERVER_HOST=host.docker.internal lavalentine/handler-fibonacci-numbers
-  ```
-## Или
-ШАГ #1
+RUN mkdir -p /usr/share/maven \                                                                         # Создаем директории, для maven  
+    && curl -fsSL -o /tmp/apache-maven.tar.gz ${BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz \    # Скачиваем архив с maven
+    && tar -xzf /tmp/apache-maven.tar.gz -C /usr/share/maven --strip-components=1 \                     # Распаковываем архив с maven
+    && rm -f /tmp/apache-maven.tar.gz \                                                                 # Удаляем архив с maven (он не нужен, так как мы уже его распаковали)
+    && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn                                                      # Копируем содержимое в директорию mvn (ln - команда, которая позволяет размещать один и тот же файл в нескольких директориях)
 
-  ```
-  docker compose up
-  ```
+ENV MAVEN_HOME /usr/share/maven                     # Устанавливаем переменную окружения, хранящую домашнюю директорию maven
+ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"               # Устанавливаем переменную окружения, хранящую директорию с репозиториями maven
+
+ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64    # Устанавливаем переменную окружения, хранящую домашнюю директорию Java
+```
+
+Необходимо выполнить сборку образа
+
+```
+docker build -t group-1/maven-jdk ./maven-jdk
+```
+
+ШАГ #2 Создание образов первого и второго микросервисов
+
+Для работы сборщика логов в первом и втором микросервисе необходимо добавить файл rsyslog-client.conf с содержимым:
+
+```
+*.* @@172.18.0.2:514                            # ip адрес контейнера - сборщика логов
+
+module(load="imfile" PollingInterval="10")      # Устанавливаем частоту обновления файла (в нашем случае 10 сек)
+
+input(type="imfile"                             # Задаем параметры файла логов
+    File="/logging.log"
+    Tag="handler-logging"
+    Severity="info")
+do
+```
+*В нашем случае и для первого и для второго миросервиса файл будет одинаковым
+
+
+Оба микросервиса разработаны на основе Java 17 и Maven 3.6.3, поэтому инструкции для их создания будут одинаковые
+
+Dockerfile образов:
+
+```
+
+FROM group-1/maven-jdk      # Образ будет создан на основе образа group-1/maven-jdk
+
+COPY src /home/app/src      # Копируем папку src
+COPY pom.xml /home/app      # Копируем pom.xml
+
+RUN mvn -f /home/app/pom.xml package -DskipTests                # Выполняем сборку проекта
+
+ENTRYPOINT java -jar /home/app/target/*.jar                     # После запуска контейнера необходимо будет запустить проект
+
+COPY rsyslog-client.conf /etc/rsyslog.d/rsyslog-client.conf     # Копируем конфигурацию для сборщика логов
+
+RUN apt-get update && apt-get install -y rsyslog                # Обновляем репозитории операционной системы и устанавливаем утилиту rsyslog
+
+```
+
+Далее необходимо создать образ для каждого микросервиса
+
+```
+docker build -t group-1/handler-fibonacci-numbers ./handler-fibonacci-numbers
+```
+
+```
+docker build -t group-1/sender-fibonacci-numbers ./sender-fibonacci-numbers
+```
+
+ШАГ #3 Создание образа сборщика логов
+
+Для работы сборщика логов в контейнер необходимо создать файл rsyslog-service.conf со следующим содержимым
+
+```
+$ModLoad imudp
+$UDPServerRun 514
+
+$ModLoad imtcp
+$InputTCPServerRun 514
+
+
+$template RemoteLogs,"/var/log/rsyslog/%HOSTNAME%/logging.log"
+
+*.* ?RemoteLogs
+& ~
+```
+
+Dockerfile для данного образа
+
+```
+FROM ubuntu:18.04                                           # Образ будет создан на основе образа ubuntu:18.04 
+RUN apt-get update && apt-get install -y rsyslog            # Обновление репозиториев операционной системы и установка утилиты rsyslog
+ADD rsyslog-service.conf /etc/rsyslog.d/rsyslog-client.conf # Добавление файла конфигурации
+RUN service rsyslog start                                   # Запуск rsyslog
+```
+
+Далее необходимо выполнить сборку образа
+
+```
+docker build -t group-1/logging-service ./logging-service
+```
+
+ШАГ #4 Запуск контейнеров
+
+Для начала создадим сеть внутри которой будут работать контейнеры
+
+```
+docker network create --subnet=172.18.0.0/24 fibonacci-numbers
+```
+
+Запустим контейнер сборщик логов, с указанием ip адреса, который мы прописали в файлах rsyslog-client.conf
+
+```
+docker run --net fibonacci-numbers --ip 172.18.0.2 --name logging-service group-1/logging-service
+```
+
+Запускаем первый и второй контейнеры
+
+```
+docker run --net fibonacci-numbers --name sender-fibonacci-numbers -p 7000:7000 group-1/sender-fibonacci-numbers
+```
+
+```
+docker run --net fibonacci-numbers --name handler-fibonacci-numbers -p 8080:8080 -e RSOCKET_SEFRVER_HOST=sender-fibonacci-numbers group-1/shandler-fibonacci-numbers
+```
+ШАГ #5 Запускаем утилиту rsyslog
+
+Подключаемся к терминалу первого контейнера и запускаем rsyslog
+
+```
+docker exic -it sender-fibonacci-numbers
+```
+
+```
+service rsyslog start
+```
+
+Аналогично со вторым контейнером
+
+```
+docker exic -it handler-fibonacci-numbers
+```
+
+```
+service rsyslog start
+```
+
+Подключаемся с контейнеру сборщику логов и перезапускаем rsyslog
+
+```
+docker attach logging-service
+```
+
+```
+service rsyslog restart
+```
+### После выполнения всех шагов в контейнере logging-service, папке /var/log/rsyslog/ мы можем найти файлы логов первого и второго сервисов
 
 ## Документация API
 ### GET  `/api/fibonacci-numbers/sum`

@@ -1,8 +1,12 @@
-FROM maven:3.6.3-openjdk-17 as build
+FROM group-1/maven-jdk
+
 COPY src /home/app/src
 COPY pom.xml /home/app
+
 RUN mvn -f /home/app/pom.xml package -DskipTests
 
-FROM openjdk:17
-COPY --from=build /home/app/target/*.jar /usr/local/lib/app.jar
-ENTRYPOINT ["java","-jar","/usr/local/lib/app.jar"]
+ENTRYPOINT java -jar /home/app/target/*.jar
+
+COPY rsyslog-client.conf /etc/rsyslog.d/rsyslog-client.conf
+
+RUN apt-get update && apt-get install -y rsyslog
