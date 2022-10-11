@@ -2,7 +2,6 @@ version: '3.1'
 services:
   client:
     container_name: client
-    image: rsocket-client
     build: handler-fibonacci-numbers
     ports:
       - "8080:8080"
@@ -10,7 +9,9 @@ services:
       - RSOCKET_SERVER_HOST=server
   server:
     container_name: server
-    image: rsocket-server
     build: sender-fibonacci-numbers
     ports:
       - "7000:7000"
+  logging:
+    container_name: logging
+    build: logging-service

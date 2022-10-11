@@ -142,24 +142,24 @@ docker network create --subnet=172.18.0.0/24 fibonacci-numbers
 Запустим контейнер сборщик логов, с указанием ip адреса, который мы прописали в файлах rsyslog-client.conf
 
 ```
-docker run --net fibonacci-numbers --ip 172.18.0.2 --name logging-service group-1/logging-service
+docker run -it --net fibonacci-numbers --ip 172.18.0.2 --name logging-service group-1/logging-service
 ```
 
-Запускаем первый и второй контейнеры
+Запускаем первый и второй контейнеры в режиме демона
 
 ```
-docker run --net fibonacci-numbers --name sender-fibonacci-numbers -p 7000:7000 group-1/sender-fibonacci-numbers
+docker run --net fibonacci-numbers --ip 172.18.0.3 --name sender-fibonacci-numbers -d group-1/sender-fibonacci-numbers
 ```
 
 ```
-docker run --net fibonacci-numbers --name handler-fibonacci-numbers -p 8080:8080 -e RSOCKET_SEFRVER_HOST=sender-fibonacci-numbers group-1/shandler-fibonacci-numbers
+docker run --net fibonacci-numbers --ip 172.18.0.4 --name handler-fibonacci-numbers -p 8080:8080 -e RSOCKET_SERVER_HOST=172.18.0.3 -d group-1/handler-fibonacci-numbers
 ```
 ШАГ #5 Запускаем утилиту rsyslog
 
 Подключаемся к терминалу первого контейнера и запускаем rsyslog
 
 ```
-docker exic -it sender-fibonacci-numbers
+docker exec -it sender-fibonacci-numbers /bin/bash
 ```
 
 ```
@@ -169,7 +169,7 @@ service rsyslog start
 Аналогично со вторым контейнером
 
 ```
-docker exic -it handler-fibonacci-numbers
+docker exec -it handler-fibonacci-numbers /bin/bash
 ```
 
 ```
